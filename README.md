@@ -4,8 +4,8 @@ Presentación sobre el SDK de Model Context Protocol (MCP) para Kotlin y casos p
 
 ## Requisitos
 
-- Node.js 18+ (recomendado usar la versión LTS actual)
-- npm 9+
+- Node.js 20.19+ (es la versión mínima soportada por Slidev 52/vite 7)
+- npm 10+
 
 ## Cómo ejecutar las slides
 
