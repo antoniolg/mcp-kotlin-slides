@@ -289,6 +289,47 @@ Destaca que es un caso real en progreso. Explica dependencias clave (Google API 
 
 ---
 
+# Configuración de Gradle
+
+```kotlin{all|2|4-6|8,9|11,12}
+dependencies {
+    implementation(libs.mcp.kotlin.sdk)
+    
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.io.core)
+    
+    implementation(libs.slf4j.api)
+    implementation(libs.logback.classic)
+
+    implementation(libs.google.play.console)
+    implementation(libs.google.auth.library)
+}
+```
+
+---
+
+# Creación de un FatJar
+
+Creará un JAR autocontenido con todas las dependencias
+
+```kotlin{4,8-12}
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.shadow)
+    application
+}
+
+tasks.shadowJar {
+    archiveBaseName.set("play-store-mcp")
+    archiveVersion.set("")
+    archiveClassifier.set("all")
+}
+```
+
+---
+
 # Bootstrap del servidor (Play Store)
 
 ```kotlin{all|2,3|4,5}
@@ -412,6 +453,32 @@ Primero cubre cómo se define el schema y por qué es útil para validación aut
         content = listOf(TextContent(text = result))
     )
 }
+```
+
+---
+
+# Compilación y configuración
+
+```bash
+./gradlew clean build -x test
+```
+
+```json
+{
+  "mcpServers": {
+    "play-store-mcp": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/Users/antonio/IdeaProjects/play-store-mcp/build/libs/play-store-mcp-all.jar"
+      ],
+      "env": {
+        "PLAY_STORE_SERVICE_ACCOUNT_KEY_PATH": "/Users/antonio/IdeaProjects/play-store-mcp/service-account-key.json"
+      }
+    }
+  }
+}
+
 ```
 
 ---
