@@ -44,11 +44,24 @@ Marca el timebox: ~5 min por bloque, 10 min demo combinada. Explica que habrá r
 
 # El dolor que resuelve MCP
 
-- Conectar LLMs con sistemas reales es repetitivo y difícil de escalar
-- Cada integración suele reinventar transporte, auth y contratos
-- MCP ofrece un “USB-C para modelos” (Model Context Protocol Intro)
-- Estándar abierto con SDKs oficiales (TS, Python, Kotlin, Rust, ...)
-- Permite describir **recursos**, **herramientas** y **prompts** de forma uniforme
+<div class="grid h-100 w-full max-w-5xl mx-auto gap-8 md:grid-cols-2 place-content-center text-left">
+  <div class="rounded-xl border border-red-500/40 bg-red-900/20 p-6">
+    <div class="text-lg font-semibold tracking-wider text-red-300">EL DOLOR</div>
+    <ul class="mt-4 space-y-3 text-sm leading-snug opacity-90">
+      <li>❌ Conectar LLMs con sistemas es <strong>repetitivo y frágil</strong>.</li>
+      <li>❌ Cada integración <strong>reinventa</strong> transporte, auth y contratos.</li>
+      <li>❌ Difícil de <strong>escalar y mantener</strong> entre distintos modelos y plataformas.</li>
+    </ul>
+  </div>
+  <div v-click class="rounded-xl border border-green-500/40 bg-green-900/20 p-6">
+    <div class="text-lg font-semibold tracking-wider text-green-300">LA SOLUCIÓN: MCP</div>
+    <ul class="mt-4 space-y-3 text-sm leading-snug opacity-90">
+      <li>✅ Un <strong>estándar abierto</strong> para conectar modelos a herramientas.</li>
+      <li>✅ Como un "USB-C para la IA": <strong>unifica la comunicación</strong>.</li>
+      <li>✅ Describe <strong>recursos, herramientas y prompts</strong> de forma universal.</li>
+    </ul>
+  </div>
+</div>
 
 
 <!--
@@ -211,13 +224,32 @@ Basado en `listmonk-mcp`. Recalca separación entre dominio y capa MCP.
 
 ---
 
-# Kotlin + corutinas + MCP
+# Kotlin + Corrutinas + MCP
 
-- Handlers MCP se ejecutan como lambdas `suspend`
-- Puedes usar `runBlocking` cuando el SDK espera un resultado inmediato
-- `CallToolResult` admite multiples contenidos (`TextContent`, `JSONContent`)
-- Gestiona IO pesado en `Dispatchers.IO` (ej. llamadas HTTP, ficheros)
-- Transport STDIO bloquea hilo principal → usa `runBlocking { server.connect(...) }`
+<div class="grid h-100 w-full max-w-5xl mx-auto gap-4 md:grid-cols-3 place-content-center text-left">
+  <div class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="text-sm font-semibold tracking-wider text-slate-200">CORAZÓN ASÍNCRONO</div>
+    <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
+      <li>✅ Los handlers de tools son funciones <code>suspend</code>.</li>
+      <li>✅ Integración natural con el ecosistema de corrutinas.</li>
+      <li>✅ Gestiona I/O pesado en <code>Dispatchers.IO</code>.</li>
+    </ul>
+  </div>
+  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="text-sm font-semibold tracking-wider text-slate-200">GESTIÓN DE HILOS</div>
+    <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
+      <li>⚠️ Usa <code>runBlocking</code> solo cuando el SDK requiera un resultado inmediato.</li>
+      <li>⚠️ El transporte STDIO bloquea el hilo principal: lánzalo con <code>runBlocking</code>.</li>
+    </ul>
+  </div>
+  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="text-sm font-semibold tracking-wider text-slate-200">RESULTADOS FLEXIBLES</div>
+    <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
+      <li>✨ <code>CallToolResult</code> admite múltiples tipos de contenido.</li>
+      <li>✨ Devuelve <code>TextContent</code> para texto simple o <code>JSONContent</code> para datos estructurados.</li>
+    </ul>
+  </div>
+</div>
 
 
 <!--
