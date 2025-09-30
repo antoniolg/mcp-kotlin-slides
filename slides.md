@@ -690,6 +690,20 @@ Finalmente, se ejecuta la lógica de negocio y se empaqueta la respuesta en un `
 
 ---
 
+# Demo Listmonk MCP Server
+<div class="flex justify-center">
+    <iframe
+    src="https://www.youtube.com/embed/A-Qtmn040a8"
+    title="Demo Play Store MCP"
+    width="600"
+    height="400"
+    allowfullscreen
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    />
+</div>
+
+---
+
 # Más Allá de las Tools: Prompts y Resources
 
 <div class="grid h-100 w-full max-w-4xl mx-auto gap-4 md:grid-cols-2 place-content-center text-left">
