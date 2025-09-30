@@ -734,11 +734,28 @@ Refuerza la idea de extender más allá de tools; menciona docs `addPrompts`, `a
 
 # Buenas prácticas
 
-- **Observabilidad**: SLF4J + Logback apuntando a fichero y consola
-- **Errores**: mapear excepciones del dominio a mensajes útiles (`playStoreService`, `ListmonkService`)
-- **Seguridad**: cargar credenciales desde env; usar secretos del sistema donde se despliegue
-- **Testing**: usar `@modelcontextprotocol/inspector` para validar handshake y `mcp dev` para pruebas locales
-- **Empaquetado**: distribuir JAR con todas las deps (`shadowJar`)
+<div class="grid w-full max-w-5xl mx-auto gap-4 md:grid-cols-2 lg:grid-cols-3 place-content-center text-left">
+  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="font-semibold tracking-wider text-slate-200">📊 Observabilidad</div>
+    <div class="mt-2 text-sm leading-snug opacity-85">Usa SLF4J + Logback para trazar la comunicación y los errores en fichero y consola.</div>
+  </div>
+  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="font-semibold tracking-wider text-slate-200">⚠️ Gestión de Errores</div>
+    <div class="mt-2 text-sm leading-snug opacity-85">Mapea excepciones del dominio a mensajes útiles y estructurados para el cliente.</div>
+  </div>
+  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="font-semibold tracking-wider text-slate-200">🔒 Seguridad</div>
+    <div class="mt-2 text-sm leading-snug opacity-85">Carga credenciales desde variables de entorno o secretos, nunca desde el código.</div>
+  </div>
+  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="font-semibold tracking-wider text-slate-200">🧪 Testing</div>
+    <div class="mt-2 text-sm leading-snug opacity-85">Utiliza <code>@modelcontextprotocol/inspector</code> y <code>mcp dev</code> para pruebas locales y de conformidad.</div>
+  </div>
+  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="font-semibold tracking-wider text-slate-200">📦 Empaquetado</div>
+    <div class="mt-2 text-sm leading-snug opacity-85">Distribuye tu servidor como un Fat JAR (<code>shadowJar</code>) con todas las dependencias incluidas.</div>
+  </div>
+</div>
 
 
 <!--
@@ -747,63 +764,29 @@ Añade comentario sobre pipelines CI para ejecutar smoke tests usando cliente MC
 
 ---
 
-# Despliegue y operación
-
-- Empaqueta como `docker run java -jar ...` o servicio systemd
-- Configura variables de entorno en contenedor / orquestador
-- Para alta disponibilidad: ejecutar detrás de supervisor (PM2, systemd) + health checks
-- Versiona contratos (actualiza `Implementation.version` cuando cambien tools)
-- Documenta config en README y `.env.example`
-
-
-<!--
-Recomienda automatizar release notes y testing con CI. Menciona necesidad de monitorear ratio de llamadas a APIs externas.
--->
-
----
-
-# Roadmap & ideas
-
-- Añadir `resources` (plantillas, dashboards) a ambos servidores
-- Registrar prompts conversacionales basados en experiencias reales
-- Exponer métricas (`logging`, `sampling`) cuando el SDK lo soporte
-- Explorar transporte WebSocket para integraciones en vivo
-- Crear librería compartida de helpers (`getArgument`, validaciones)
-
-
-<!--
-Invita a la audiencia a contribuir o crear nuevos servers (JIRA, Salesforce, etc.).
--->
-
----
-
 # Recursos
 
-- Documentación MCP Kotlin SDK (Context7 `/modelcontextprotocol/kotlin-sdk`)
-- Guía “MCP for Beginners” (Microsoft) con ejemplos multi-runtime
-- Repos demo:
-  - `github.com/devexpert-io/play-store-mcp`
-  - `github.com/devexpert-io/listmonk-mcp`
-- MCP Inspector: `npx @modelcontextprotocol/inspector`
-- Comunidad: Discord oficial MCP, foro Anthropic
-
+- [Web oficial Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro)
+- [MCP Kotlin SDK](https://modelcontextprotocol.github.io/kotlin-sdk/)
+- Repositorios de ejemplo (en desarrollo):
+  - [Play Store MCP](https://github.com/devexpert-io/play-store-mcp)
+  - [Listmonk MCP]()
 
 <!--
 Pide a la audiencia escanear QR o visitar README del repo actual para enlaces.
 -->
 
 ---
+layout: about-me
 
-# Gracias · Preguntas
-
-> "Construir agentes útiles es cuestión de exponer contexto confiable. MCP + Kotlin nos dan las herramientas." 
-
-- Contacto: antonio@devexpert.io
-- Slides y demos: repo `talks/mcp-kotlin`
-
-
-<!--
-Abre espacio a Q&A. Ten preparada slide backup con FAQs (permisos Play Store, cron jobs, etc.).
--->
+helloMsg: ¡Gracias!
+name: Antonio Leiva
+nameTitle: Formador DevExpert
+imageSrc: ./assets/antonio-leiva.jpg
+position: left
+job: Formador DevExpert
+social1: 🐦 @devexpert_io
+social2: 🎥 @devexpert-io
+social3: 🌍 https://devexpert.io
 
 ---
