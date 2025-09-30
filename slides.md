@@ -462,19 +462,19 @@ Subraya cómo escala el SDK para muchos endpoints sin perder claridad.
 
 ---
 
-# Configuración y bootstrap
+# Bootstrap del Servidor (Listmonk)
 
-```kotlin
-// listmonk-mcp/src/.../Main.kt
+```kotlin{all|1|2|3|4}
 val config = ListmonkConfig.fromEnvironment()
 val mcpServer = ListmonkMcpServer(config)
 Runtime.getRuntime().addShutdownHook(Thread { mcpServer.close() })
 StdioTransport().startServer(mcpServer.getServer())
 ```
 
-- `ListmonkConfig` valida base URL, API key, timeouts (env vars)
-- Shutdown hook cierra cliente HTTP limpiamente
-- Reutiliza mismo transporte STDIO que Play Store
+- `ListmonkConfig` valida base URL, API key, timeouts (env vars).
+- `PlayStoreMcpServer` prepara capacidades y herramientas.
+- Shutdown hook cierra cliente HTTP limpiamente.
+- Reutiliza mismo transporte STDIO que Play Store.
 
 
 <!--
@@ -485,8 +485,7 @@ Enfatiza reutilización del patrón inicialización→transportado.
 
 # Ktor HTTP Client reutilizable
 
-```kotlin
-// ListmonkService.kt (fragmento)
+```kotlin{all|1|2|3-5|6|7-12}
 private val httpClient = HttpClient(CIO) {
   install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
   install(Auth) {
@@ -502,8 +501,10 @@ private val httpClient = HttpClient(CIO) {
 }
 ```
 
-- `parseResponseOrThrowMessage` centraliza manejo de errores `{ "message": ... }`
-- `runCatching` expone `Result` para cada llamada → handlers MCP generan textos JSON o mensajes de error
+- **ContentNegotiation**: Configura `kotlinx.serialization` para JSON.
+- **Auth**: Instala autenticación `Basic` con las credenciales cargadas.
+- **HttpTimeout**: Establece un timeout para las peticiones.
+- **defaultRequest**: Define cabeceras por defecto para todas las llamadas.
 
 
 <!--
@@ -512,21 +513,32 @@ Conecta con la slide de buenas prácticas (observabilidad, retries configurables
 
 ---
 
-# Escalando herramientas
+# Patrón para Escalar: 1 Tool = 1 Función
+
+<div class="grid h-100 w-full max-w-4xl mx-auto gap-4 md:grid-cols-2 place-content-center text-left">
+  <div>
+    <p class="text-lg opacity-90">Para mantener el código organizado con 22 herramientas, se sigue un patrón simple: cada herramienta se registra en su propia función.</p>
+    <ul class="mt-4 space-y-2 text-sm leading-snug opacity-85">
+      <li>✅ Cada función es auto-contenida.</li>
+      <li>✅ Define el schema, el handler y la lógica de llamada.</li>
+      <li>✅ Facilita las pruebas y la mantenibilidad.</li>
+    </ul>
+  </div>
+  <div class="rounded-xl border border-slate-200/60 bg-slate-900/50 p-4">
 
 ```kotlin
-// ListmonkTools.registerTools(server)
-registerGetSubscribersTool(server)
-registerCreateSubscriberTool(server)
-registerUpdateSubscriberTool(server)
-...
-registerSetDefaultTemplateTool(server)
-registerDeleteTemplateTool(server)
+fun registerAllTools(server: Server) {
+  registerGetSubscribersTool(server)
+  registerCreateSubscriberTool(server)
+  registerDeleteSubscriberTool(server)
+  // ... 22 tools in total
+  registerSetDefaultTemplateTool(server)
+  registerDeleteTemplateTool(server)
+}
 ```
 
-- Cada helper define input schema, valida y llama a `ListmonkService`
-- Respuestas serializadas con `kotlinx.serialization` (`Json.encodeToString`)
-- Mensajes de error homogéneos → mejor UX en cliente
+  </div>
+</div>
 
 
 <!--
@@ -535,50 +547,102 @@ Menciona que prompts listados pueden guiar flujos complejos (ej. creación de ca
 
 ---
 
-# Patrón de tool reusable
+# Anatomía de una Tool
 
-```kotlin
+<div class="text-left max-w-3xl mx-auto">
+Toda tool registrada sigue esta estructura:
+</div>
+
+```kotlin{all|1|2-5|6-10}
 private fun registerGetSubscribersTool(server: Server) {
   server.addTool(
     name = "get_subscribers",
     description = "Retrieve subscribers",
-    inputSchema = Tool.Input(properties = ...)
+    inputSchema = Tool.Input(properties = ...) // Schema omitido por brevedad
   ) { request ->
+    // 1. Parsear argumentos de la request
+    // 2. Ejecutar la lógica de negocio
+    // 3. Devolver el resultado
+  }
+}
+```
+
+- `addTool`: Registra la herramienta en el servidor MCP.
+- `name`, `description`, `inputSchema`: Definen el contrato de la tool para el cliente.
+- **Handler (lambda)**: El código que se ejecuta cuando el cliente llama a la tool.
+
+---
+
+# Handler: Parseo de Argumentos
+
+El primer paso en el handler es extraer y validar los argumentos de la `request`.
+
+```kotlin{all|1,10|2-8}
+{ request ->
     val page = request.arguments.getArgument("page", 1L).toInt()
+    val query = request.arguments.getArgument<String?>("query", null)
     val status = when (request.arguments.getArgument("status", "")) {
       "enabled" -> SubscriberStatus.ENABLED
       "blocklisted" -> SubscriberStatus.BLOCKLISTED
       else -> null
     }
 
-    val result = runBlocking { listmonkService.getSubscribers(page = page, status = status) }
+    // ... lógica de negocio
+}
+```
+
+- El helper `getArgument` permite leer un argumento por nombre.
+- Proporciona un valor por defecto si el argumento no está presente.
+- Se realiza la conversión de tipos necesaria (ej. a `enum`).
+
+---
+
+# Handler: Lógica y Resultado
+
+Finalmente, se ejecuta la lógica de negocio y se empaqueta la respuesta en un `CallToolResult`.
+
+```kotlin{all|1-3|5-12}
+    val result = runBlocking {
+        listmonkService.getSubscribers(page = page, query = query, status = status)
+    }
 
     CallToolResult(
       content = listOf(TextContent(
         result.fold(
           onSuccess = { Json.encodeToString(it) },
-          onFailure = { "Error getting subscribers: ${'$'}{it.message}" }
+          onFailure = { "Error getting subscribers: ${it.message}" }
         )
       ))
     )
-  }
 }
 ```
 
-
-<!--
-Destaca cómo se usa `Result.fold` para respuestas limpias y cómo `getArgument` reutiliza casting desde `JsonPrimitive`.
--->
+- `runBlocking` se usa para llamar al servicio `suspend` desde el handler.
+- `Result.fold` permite manejar éxito y error de forma elegante.
+- El resultado se serializa a JSON y se envía como `TextContent`.
 
 ---
 
-# Integrar recursos y prompts
+# Más Allá de las Tools: Prompts y Resources
 
-- Ambos servidores activan `ServerCapabilities.Prompts`
-- `listmonk-mcp` ya incluye prompts para guiar asistentes (ver README)
-- Próximo paso: añadir `server.addPrompts(listOf(...))` con `RegisteredPrompt`
-- `Resources`: ideal para exponer plantillas HTML, release notes o métricas
-- `sendResourceListChanged()` avisa a clientes cuando se actualicen recursos
+<div class="grid h-100 w-full max-w-4xl mx-auto gap-4 md:grid-cols-2 place-content-center text-left">
+  <div class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="text-sm font-semibold tracking-wider text-slate-200">PROMPTS GUIADOS</div>
+    <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
+      <li>✅ `listmonk-mcp` ya define prompts para flujos complejos.</li>
+      <li>💡 Se registran con <code>server.addPrompts(...)</code>.</li>
+      <li>🎯 Ayudan al LLM a seguir pasos lógicos (ej. crear una campaña).</li>
+    </ul>
+  </div>
+  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+    <div class="text-sm font-semibold tracking-wider text-slate-200">RECURSOS ESTÁTICOS</div>
+    <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
+      <li>✅ Ideal para plantillas HTML, métricas o datos que no cambian a menudo.</li>
+      <li>💡 Se registran con <code>server.addResources(...)</code>.</li>
+      <li>🔄 Notifica a los clientes de cambios con <code>sendResourceListChanged()</code>.</li>
+    </ul>
+  </div>
+</div>
 
 
 <!--
