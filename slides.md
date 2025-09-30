@@ -260,11 +260,27 @@ En el Play Store server se ve mezcla `runBlocking` + servicios suspend. Explica 
 
 # Caso 1 · Play Store MCP Server
 
-- Ubicación: `play-store-mcp/`
-- Objetivo: automatizar despliegues y promociones en Google Play Console
-- Dominio: Google Android Publisher API (AAB/APK, tracks, release notes)
-- Herramientas expuestas: `deploy_app`, `promote_release`, `get_releases`
-- Empaquetado en fat JAR (`shadowJar`) para uso desde Claude/CLI
+<div class="grid h-100 w-full max-w-2xl mx-auto gap-4 place-content-center text-left">
+  <div class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-6">
+    <div class="text-center mb-4">
+      <div class="text-sm font-semibold tracking-wider text-slate-200">FICHA DE PROYECTO</div>
+    </div>
+    <ul class="space-y-4 text-sm leading-snug opacity-90">
+      <li>
+        <div class="font-semibold text-slate-300">🎯 Objetivo Principal</div>
+        <div class="opacity-80">Automatizar despliegues y promociones en Google Play Console.</div>
+      </li>
+      <li>
+        <div class="font-semibold text-slate-300">🛠️ Herramientas MCP Expuestas</div>
+        <div class="opacity-80"><code>deploy_app</code>, <code>promote_release</code>, <code>get_releases</code></div>
+      </li>
+      <li>
+        <div class="font-semibold text-slate-300">⚙️ Stack Tecnológico</div>
+        <div class="opacity-80">Kotlin, Google Android Publisher API, gRPC, empaquetado en Fat JAR (shadowJar).</div>
+      </li>
+    </ul>
+  </div>
+</div>
 
 
 <!--
@@ -275,8 +291,7 @@ Destaca que es un caso real en progreso. Explica dependencias clave (Google API 
 
 # Bootstrap del servidor (Play Store)
 
-```kotlin
-// play-store-mcp/src/main/kotlin/io/devexpert/main.kt
+```kotlin{all|2,3|4,5}
 fun main() {
   val mcpServer = PlayStoreMcpServer()
   mcpServer.initialize()
@@ -284,10 +299,6 @@ fun main() {
   StdioTransport().startServer(server)
 }
 ```
-
-- `PlayStoreMcpServer` prepara capacidades y herramientas
-- `StdioTransport` encapsula `StdioServerTransport` con buffers
-- Logs con SLF4J/Logback para trazar handshake y errores
 
 
 <!--
@@ -299,7 +310,6 @@ Comenta que la inicialización valida variables de entorno antes de aceptar peti
 # ServerCapabilities en acción
 
 ```kotlin
-// play-store-mcp/.../PlayStoreMcpServer.kt
 private val server = Server(
   serverInfo = Implementation(
     name = "play-store-mcp",
@@ -422,11 +432,28 @@ Primero cubre cómo se define el schema y por qué es útil para validación aut
 
 # Caso 2 · Listmonk MCP Server
 
-- Ubicación: `listmonk-mcp/`
-- Objetivo: gestionar newsletter self-hosted vía AI assistant
-- 22 herramientas CRUD (suscriptores, listas, campañas, plantillas)
-- Prompts guiados (`manage_subscriber_lifecycle`, `create_campaign_workflow`)
-- Cliente HTTP basado en Ktor + autenticación Basic/API key
+<div class="grid h-100 w-full max-w-2xl mx-auto gap-4 place-content-center text-left">
+  <div class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-6">
+    <div class="text-center mb-4">
+      <div class="text-sm font-semibold tracking-wider text-slate-200">FICHA DE PROYECTO</div>
+    </div>
+    <ul class="space-y-4 text-sm leading-snug opacity-90">
+      <li>
+        <div class="font-semibold text-slate-300">🎯 Objetivo Principal</div>
+        <div class="opacity-80">Gestionar una newsletter auto-alojada (Listmonk) mediante un asistente de IA.</div>
+      </li>
+      <li>
+        <div class="font-semibold text-slate-300">🛠️ Capacidades MCP Expuestas</div>
+        <div class="opacity-80"><b>+22 herramientas CRUD</b> para suscriptores, listas, campañas, etc.</div>
+        <div class="opacity-80"><b>Prompts guiados</b> para flujos de trabajo complejos.</div>
+      </li>
+      <li>
+        <div class="font-semibold text-slate-300">⚙️ Stack Tecnológico</div>
+        <div class="opacity-80">Kotlin, Ktor HTTP Client con autenticación Basic/API Key.</div>
+      </li>
+    </ul>
+  </div>
+</div>
 
 
 <!--
