@@ -29,10 +29,10 @@ layout: default
 
 1. ¿Por qué MCP y por qué ahora?
 2. Fundamentos del protocolo
-3. Kotlin + MCP en la JVM
+3. El ecosistema Kotlin para MCP
 4. Caso 1: Play Store MCP Server
 5. Caso 2: Listmonk MCP Server
-6. Buenas prácticas y despliegue
+6. Capacidades avanzadas: Prompts y Resources
 7. Recursos y Q&A
 
 
