@@ -486,7 +486,7 @@ Primero cubre cómo se define el schema y por qué es útil para validación aut
 # Demo Play Store MCP Server
 <div class="flex justify-center">
     <iframe
-    src="https://www.youtube.com/embed/A-Qtmn040a8"
+    src="https://www.youtube.com/embed/Ik3C1I_2Jyw"
     title="Demo Play Store MCP"
     width="600"
     height="400"
@@ -693,8 +693,8 @@ Finalmente, se ejecuta la lógica de negocio y se empaqueta la respuesta en un `
 # Demo Listmonk MCP Server
 <div class="flex justify-center">
     <iframe
-    src="https://www.youtube.com/embed/A-Qtmn040a8"
-    title="Demo Play Store MCP"
+    src="https://www.youtube.com/embed/IjpgkESoT8c"
+    title="Demo Listmonk MCP"
     width="600"
     height="400"
     allowfullscreen
