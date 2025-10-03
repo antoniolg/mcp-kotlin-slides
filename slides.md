@@ -6,8 +6,18 @@ themeConfig:
 ---
 
 # MCPs en Kotlin
+## Creando superpoderes para tu Asistente IA
 
-## Diseñando agentes conectados con MCP
+<div class="absolute right-12 bottom-12 flex items-center gap-4">
+  <div class="h-20 w-20 overflow-hidden rounded-full border border-emerald-400/80">
+    <img src="/antonio-leiva.jpg" alt="Antonio Leiva" class="h-full w-full object-cover" />
+  </div>
+  <div class="flex flex-col text-left text-slate-100 leading-tight gap-1">
+    <div class="font-semibold">Antonio Leiva</div>
+    <div class="text-slate-300">GDE Android y Partner JetBrains</div>
+    <div class="text-slate-400"><i>DevExpert SLU</i></div>
+  </div>
+</div>
 
 ---
 layout: about-me
