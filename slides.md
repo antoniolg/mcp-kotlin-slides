@@ -37,9 +37,7 @@ layout: default
 6. Capacidades avanzadas: Prompts y Resources
 7. Recursos y Q&A
 
-<!--
-Marca el timebox: ~5 min por bloque, 10 min demo combinada. Explica que habrá resumen y recursos al final.
--->
+
 
 ---
 
@@ -65,9 +63,7 @@ Marca el timebox: ~5 min por bloque, 10 min demo combinada. Explica que habrá r
 </div>
 
 
-<!--
-Cita cómo Anthropic, Microsoft y la comunidad lo impulsan. Insiste en el beneficio para equipos Kotlin que ya consumen APIs.
--->
+
 
 ---
 
@@ -88,9 +84,7 @@ sequenceDiagram
   MCP-->>Cliente: CallToolResult(TextContent | JSON)
 ```
 
-<!--
-Menciona handshake inicial y cómo `ServerCapabilities` informa al cliente sobre cambios. Esta slide marca la vista general previa a código.
--->
+
 
 ---
 
@@ -124,9 +118,7 @@ Menciona handshake inicial y cómo `ServerCapabilities` informa al cliente sobre
 </div>
 
 
-<!--
-Detalles completos en la especificación MCP (tools/resources/prompts). Incluye: tools/list+call con JSON Schema, resources/list/read/subscribe para URIs estables con listChanged/subscribe, prompts/list/get para plantillas con argumentos y Content. Se exponen vía ServerCapabilities.
--->
+
 
 ---
 
@@ -162,9 +154,7 @@ Detalles completos en la especificación MCP (tools/resources/prompts). Incluye:
 </div>
 
 
-<!--
-Basado en protocolo 2025-06-18: stdio obligatorio cuando sea posible; Streamable HTTP reemplaza HTTP+SSE anterior. Custom transports siguen permitidos. Kotlin SDK: `StdioServerTransport` listo; HTTP en evolución (usa Ktor mientras llega transporte oficial).
--->
+
 
 ---
 
@@ -206,9 +196,7 @@ Basado en protocolo 2025-06-18: stdio obligatorio cuando sea posible; Streamable
 ![MCP Tools](/assets/mcp-kotlin-sdk.png)
 
 
-<!--
-Apóyate en la documentación de Context7 (`/modelcontextprotocol/kotlin-sdk`). Destaca que casi todo sucede en JVM, pero el SDK es multiplataforma.
--->
+
 
 ---
 
@@ -274,9 +262,7 @@ src/main/kotlin/io/devexpert/
   └── Main.kt         # Bootstrap del servidor
 ```
 
-<!--
-Basado en `listmonk-mcp`. Recalca separación entre dominio y capa MCP.
--->
+
 
 ---
 
@@ -305,9 +291,7 @@ Basado en `listmonk-mcp`. Recalca separación entre dominio y capa MCP.
 </div>
 
 
-<!--
-Destaca que es un caso real en progreso. Explica dependencias clave (Google API + auth service account).
--->
+
 
 ---
 
@@ -369,9 +353,7 @@ private val server = Server(
 )
 ```
 
-<!--
-Comenta que la inicialización valida variables de entorno antes de aceptar peticiones.
--->
+
 
 ---
 
@@ -396,9 +378,7 @@ private val server = Server(
 - `initialize()` registra herramientas y valida configuración Play Store
 - `listChanged` permite notificar futuras ampliaciones
 
-<!--
-Sugiere que se podrían añadir resources (release notes templates) si hiciera falta.
--->
+
 
 ---
 
@@ -414,9 +394,7 @@ server.addTool(
 }
 ```
 
-<!--
-Primero cubre cómo se define el schema y por qué es útil para validación automática en los agentes.
--->
+
 
 ---
 
@@ -447,9 +425,7 @@ inputSchema = Tool.Input(
 )
 ```
 
-<!--
-Primero cubre cómo se define el schema y por qué es útil para validación automática en los agentes.
--->
+
 
 ---
 
@@ -548,9 +524,7 @@ Primero cubre cómo se define el schema y por qué es útil para validación aut
 </div>
 
 
-<!--
-Subraya cómo escala el SDK para muchos endpoints sin perder claridad.
--->
+
 
 ---
 
@@ -568,9 +542,7 @@ StdioTransport().startServer(mcpServer.getServer())
 - Shutdown hook cierra cliente HTTP limpiamente.
 - Reutiliza mismo transporte STDIO que Play Store.
 
-<!--
-Enfatiza reutilización del patrón inicialización→transportado.
--->
+
 
 ---
 
@@ -597,9 +569,7 @@ private val httpClient = HttpClient(CIO) {
 - **HttpTimeout**: Establece un timeout para las peticiones.
 - **defaultRequest**: Define cabeceras por defecto para todas las llamadas.
 
-<!--
-Conecta con la slide de buenas prácticas (observabilidad, retries configurables).
--->
+
 
 ---
 
@@ -631,9 +601,7 @@ fun registerAllTools(server: Server) {
 </div>
 
 
-<!--
-Menciona que prompts listados pueden guiar flujos complejos (ej. creación de campaña paso a paso).
--->
+
 
 ---
 
@@ -775,9 +743,7 @@ Finalmente, se ejecuta la lógica de negocio y se empaqueta la respuesta en un `
 </div>
 
 
-<!--
-Refuerza la idea de extender más allá de tools; menciona docs `addPrompts`, `addResources` del SDK.
--->
+
 
 ---
 
@@ -807,9 +773,7 @@ Refuerza la idea de extender más allá de tools; menciona docs `addPrompts`, `a
 </div>
 
 
-<!--
-Añade comentario sobre pipelines CI para ejecutar smoke tests usando cliente MCP en modo headless.
--->
+
 
 ---
 
@@ -821,9 +785,7 @@ Añade comentario sobre pipelines CI para ejecutar smoke tests usando cliente MC
     - [Play Store MCP](https://github.com/devexpert-io/play-store-mcp)
     - [Listmonk MCP]()
 
-<!--
-Pide a la audiencia escanear QR o visitar README del repo actual para enlaces.
--->
+
 
 ---
 layout: about-me
