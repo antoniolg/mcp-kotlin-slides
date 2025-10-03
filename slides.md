@@ -6,6 +6,7 @@ themeConfig:
 ---
 
 # MCPs en Kotlin
+
 ## Diseñando agentes conectados con MCP
 
 ---
@@ -25,6 +26,7 @@ social3: 🌍 https://devexpert.io
 ---
 layout: default
 ---
+
 # Agenda
 
 1. ¿Por qué MCP y por qué ahora?
@@ -34,7 +36,6 @@ layout: default
 5. Caso 2: Listmonk MCP Server
 6. Capacidades avanzadas: Prompts y Resources
 7. Recursos y Q&A
-
 
 <!--
 Marca el timebox: ~5 min por bloque, 10 min demo combinada. Explica que habrá resumen y recursos al final.
@@ -86,7 +87,6 @@ sequenceDiagram
   Sistema-->>MCP: Resultado dominio
   MCP-->>Cliente: CallToolResult(TextContent | JSON)
 ```
-
 
 <!--
 Menciona handshake inicial y cómo `ServerCapabilities` informa al cliente sobre cambios. Esta slide marca la vista general previa a código.
@@ -143,25 +143,58 @@ Detalles completos en la especificación MCP (tools/resources/prompts). Incluye:
     <div class="text-sm font-semibold tracking-wider text-slate-200">STDIO</div>
     <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
       <li>Cliente lanza el server como subproceso.</li>
-      <li>Comunicación JSON.</li>
+      <li>Comunicación JSON-RCP.</li>
       <li>Usa stdin/stdout.</li>
       <li>Ideal para agentes locales y CLI.</li>
     </ul>
   </div>
-  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
-    <div class="text-sm font-semibold tracking-wider text-slate-200">STREAMABLE HTTP</div>
-    <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
-      <li>Un único endpoint HTTP para POST/GET.</li>
-      <li>POST devuelve JSON o abre SSE para respuestas y notificaciones.</li>
-      <li>Requiere cabeceras `MCP-Protocol-Version` y gestión de sesiones.</li>
-    </ul>
-  </div>
+<div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
+  <div class="text-sm font-semibold tracking-wider text-slate-200">STREAMABLE HTTP</div>
+  <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
+    <li>Un único endpoint HTTP (llamado “MCP endpoint”) que atiende tanto POST como GET.</li>
+    <li>Cliente → Servidor: mensajes JSON-RPC enviados vía POST.</li>
+    <li>Servidor → Cliente: respuestas simples devueltas como JSON, o streaming mediante SSE cuando hay múltiples mensajes.</li>
+    <li>Soporte de sesiones vía cabecera `MCP-Session-Id` si la inicialización la devuelve.</li>
+    <li>Cabecera obligatoria `MCP-Protocol-Version` para indicar la versión del protocolo.</li>
+  </ul>
+</div>
+
 </div>
 
 
 <!--
 Basado en protocolo 2025-06-18: stdio obligatorio cuando sea posible; Streamable HTTP reemplaza HTTP+SSE anterior. Custom transports siguen permitidos. Kotlin SDK: `StdioServerTransport` listo; HTTP en evolución (usa Ktor mientras llega transporte oficial).
 -->
+
+---
+
+# Comunicación JSON-RPC
+
+- Entrada
+
+```json{all|2|3|4|5-8}
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "sayHello",
+    "arguments": { "input": "Antonio" }
+  }
+}
+```
+
+- Salida
+
+```json{0|all}
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": "Hello, Antonio!"
+  }
+}
+```
 
 ---
 
@@ -181,7 +214,7 @@ Apóyate en la documentación de Context7 (`/modelcontextprotocol/kotlin-sdk`). 
 
 # Boilerplate mínimo
 
-```kotlin{all|1,12|2-5|6-11}
+```kotlin{all|1,13|2-5|6-12}
 val server = Server(
   serverInfo = Implementation(
     name = "example-server",
@@ -197,10 +230,34 @@ val server = Server(
 )
 ```
 
+---
 
-<!--
-Este snippet está inspirado en el README oficial. Explica que `listChanged=true` avisa al cliente para refrescar catálogos.
--->
+# Boilerplate mínimo
+
+<div class="grid gap-8 items-start" style="grid-template-columns: 1.1fr 0.9fr" markdown="1">
+<div>
+
+```kotlin{all|1-4|1-4,7,9,11|6,8,10,12,13|all}
+val transport = StdioServerTransport(
+    System.`in`.asSource().buffered(),
+    System.out.asSink().buffered()
+)
+
+runBlocking {
+    server.connect(transport)
+    val done = Job()
+    server.onClose {
+        done.complete()
+    }
+    done.join()
+}
+```
+
+</div>
+<div class="flex flex-col items-center">
+  <img src="/assets/stdio-source-sink.png" alt="El flujo stdio con Source y Sink" class="w-full max-w-xs rounded-xl shadow-lg border border-slate-600/50 bg-slate-900/40 p-4" />
+</div>
+</div>
 
 ---
 
@@ -217,43 +274,8 @@ src/main/kotlin/io/devexpert/
   └── Main.kt         # Bootstrap del servidor
 ```
 
-
 <!--
 Basado en `listmonk-mcp`. Recalca separación entre dominio y capa MCP.
--->
-
----
-
-# Kotlin + Corrutinas + MCP
-
-<div class="grid h-100 w-full max-w-5xl mx-auto gap-4 md:grid-cols-3 place-content-center text-left">
-  <div class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
-    <div class="text-sm font-semibold tracking-wider text-slate-200">CORAZÓN ASÍNCRONO</div>
-    <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
-      <li>✅ Los handlers de tools son funciones <code>suspend</code>.</li>
-      <li>✅ Integración natural con el ecosistema de corrutinas.</li>
-      <li>✅ Gestiona I/O pesado en <code>Dispatchers.IO</code>.</li>
-    </ul>
-  </div>
-  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
-    <div class="text-sm font-semibold tracking-wider text-slate-200">GESTIÓN DE HILOS</div>
-    <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
-      <li>⚠️ Usa <code>runBlocking</code> solo cuando el SDK requiera un resultado inmediato.</li>
-      <li>⚠️ El transporte STDIO bloquea el hilo principal: lánzalo con <code>runBlocking</code>.</li>
-    </ul>
-  </div>
-  <div v-click class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
-    <div class="text-sm font-semibold tracking-wider text-slate-200">RESULTADOS FLEXIBLES</div>
-    <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
-      <li>✨ <code>CallToolResult</code> admite múltiples tipos de contenido.</li>
-      <li>✨ Devuelve <code>TextContent</code> para texto simple o <code>JSONContent</code> para datos estructurados.</li>
-    </ul>
-  </div>
-</div>
-
-
-<!--
-En el Play Store server se ve mezcla `runBlocking` + servicios suspend. Explica pros/contras.
 -->
 
 ---
@@ -276,7 +298,7 @@ En el Play Store server se ve mezcla `runBlocking` + servicios suspend. Explica 
       </li>
       <li>
         <div class="font-semibold text-slate-300">⚙️ Stack Tecnológico</div>
-        <div class="opacity-80">Kotlin, Google Android Publisher API, gRPC, empaquetado en Fat JAR (shadowJar).</div>
+        <div class="opacity-80">Kotlin, Google Android Publisher API, empaquetado en Fat JAR (shadowJar).</div>
       </li>
     </ul>
   </div>
@@ -330,17 +352,22 @@ tasks.shadowJar {
 
 ---
 
-# Bootstrap del servidor (Play Store)
+# Bootstrap del servidor
 
 ```kotlin{all|2,3|4,5}
-fun main() {
-  val mcpServer = PlayStoreMcpServer()
-  mcpServer.initialize()
-  val server = mcpServer.getServer()
-  StdioTransport().startServer(server)
-}
+private val server = Server(
+  serverInfo = Implementation(
+    name = "play-store-mcp",
+    version = "1.0.0"
+  ),
+  options = ServerOptions(
+    capabilities = ServerCapabilities(
+      tools = ServerCapabilities.Tools(listChanged = true),
+      prompts = ServerCapabilities.Prompts(listChanged = true)
+    )
+  )
+)
 ```
-
 
 <!--
 Comenta que la inicialización valida variables de entorno antes de aceptar peticiones.
@@ -368,7 +395,6 @@ private val server = Server(
 - Capacidad de prompts activada → listo para añadir guías en `prompts/`
 - `initialize()` registra herramientas y valida configuración Play Store
 - `listChanged` permite notificar futuras ampliaciones
-
 
 <!--
 Sugiere que se podrían añadir resources (release notes templates) si hiciera falta.
@@ -429,23 +455,21 @@ Primero cubre cómo se define el schema y por qué es útil para validación aut
 
 # Tool · Deploy App (handler)
 
-```kotlin {all|2-10|12-17|19-22}
+```kotlin {all|2-9|10-16|17-20}
 ) { request ->
-    // Llama al servicio, recuperando argumentos de la request
-    val deployment = runBlocking {
-        playStoreService.deployApp(
-            packageName = request.arguments.getArgument("packageName", "unknown"),
-            track = request.arguments.getArgument("track", "internal"),
-            apkPath = request.arguments.getArgument("apkPath", ""),
-            ...
-        )
-    }
+    // Llama al servicio (estamos en contexto de corrutinas)
+    val deployment = playStoreService.deployApp(
+        packageName = request.arguments.getArgument("packageName", "unknown"),
+        track = request.arguments.getArgument("track", "internal"),
+        apkPath = request.arguments.getArgument("apkPath", ""),
+        // ...
+    )
 
     // Formatea el resultado para el cliente
     val result = buildString {
         appendLine("App Deployment")
         appendLine("Package Name: ${deployment.packageName}")
-        ...
+        // ...
     }
 
     // Devuelve CallToolResult con el resultado
@@ -463,14 +487,14 @@ Primero cubre cómo se define el schema y por qué es útil para validación aut
 ./gradlew clean build -x test
 ```
 
-```json
+```json{0|all}
 {
   "mcpServers": {
     "play-store-mcp": {
       "command": "java",
       "args": [
         "-jar",
-        "/Users/antonio/IdeaProjects/play-store-mcp/build/libs/play-store-mcp-all.jar"
+        "/ruta/al/proyecto/build/libs/play-store-mcp-all.jar"
       ],
       "env": {
         "PLAY_STORE_SERVICE_ACCOUNT_KEY_PATH": "/Users/antonio/IdeaProjects/play-store-mcp/service-account-key.json"
@@ -484,6 +508,7 @@ Primero cubre cómo se define el schema y por qué es útil para validación aut
 ---
 
 # Demo Play Store MCP Server
+
 <div class="flex justify-center">
     <iframe
     src="https://www.youtube.com/embed/Ik3C1I_2Jyw"
@@ -543,7 +568,6 @@ StdioTransport().startServer(mcpServer.getServer())
 - Shutdown hook cierra cliente HTTP limpiamente.
 - Reutiliza mismo transporte STDIO que Play Store.
 
-
 <!--
 Enfatiza reutilización del patrón inicialización→transportado.
 -->
@@ -572,7 +596,6 @@ private val httpClient = HttpClient(CIO) {
 - **Auth**: Instala autenticación `Basic` con las credenciales cargadas.
 - **HttpTimeout**: Establece un timeout para las peticiones.
 - **defaultRequest**: Define cabeceras por defecto para todas las llamadas.
-
 
 <!--
 Conecta con la slide de buenas prácticas (observabilidad, retries configurables).
@@ -668,10 +691,8 @@ El primer paso en el handler es extraer y validar los argumentos de la `request`
 
 Finalmente, se ejecuta la lógica de negocio y se empaqueta la respuesta en un `CallToolResult`.
 
-```kotlin{all|1-3|5-12}
-    val result = runBlocking {
-        listmonkService.getSubscribers(page = page, query = query, status = status)
-    }
+```kotlin{all|1|3-12}
+    val result = listmonkService.getSubscribers(page = page, query = query, status = status)
 
     CallToolResult(
       content = listOf(TextContent(
@@ -690,7 +711,36 @@ Finalmente, se ejecuta la lógica de negocio y se empaqueta la respuesta en un `
 
 ---
 
+# Compilación y configuración
+
+```bash
+./gradlew clean build -x test
+```
+
+```json{0|all}
+{
+  "mcpServers": {
+    "listmonk": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/ruta/al/proyecto/build/libs/listmonk-mcp-all.jar"
+      ],
+      "env": {
+        "LISTMONK_BASE_URL": "https://listmonk.mydomain.com",
+        "LISTMONK_USERNAME": "user_name",
+        "LISTMONK_API_KEY": "<api_key>"
+      }
+    }
+  }
+}
+
+```
+
+---
+
 # Demo Listmonk MCP Server
+
 <div class="flex justify-center">
     <iframe
     src="https://www.youtube.com/embed/IjpgkESoT8c"
@@ -710,7 +760,6 @@ Finalmente, se ejecuta la lógica de negocio y se empaqueta la respuesta en un `
   <div class="rounded-xl border border-slate-200/60 bg-slate-800/30 p-5">
     <div class="text-sm font-semibold tracking-wider text-slate-200">PROMPTS GUIADOS</div>
     <ul class="mt-3 space-y-2 text-sm leading-snug opacity-85">
-      <li>✅ `listmonk-mcp` ya define prompts para flujos complejos.</li>
       <li>💡 Se registran con <code>server.addPrompts(...)</code>.</li>
       <li>🎯 Ayudan al LLM a seguir pasos lógicos (ej. crear una campaña).</li>
     </ul>
@@ -769,8 +818,8 @@ Añade comentario sobre pipelines CI para ejecutar smoke tests usando cliente MC
 - [Web oficial Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro)
 - [MCP Kotlin SDK](https://modelcontextprotocol.github.io/kotlin-sdk/)
 - Repositorios de ejemplo (en desarrollo):
-  - [Play Store MCP](https://github.com/devexpert-io/play-store-mcp)
-  - [Listmonk MCP]()
+    - [Play Store MCP](https://github.com/devexpert-io/play-store-mcp)
+    - [Listmonk MCP]()
 
 <!--
 Pide a la audiencia escanear QR o visitar README del repo actual para enlaces.
