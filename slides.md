@@ -14,7 +14,7 @@ layout: about-me
 helloMsg: ¡Hola Aranjuez!
 name: Antonio Leiva
 nameTitle: Formador DevExpert
-imageSrc: ./assets/antonio-leiva.jpg
+imageSrc: /antonio-leiva.jpg
 position: left
 job: Formador DevExpert
 social1: 🐦 @devexpert_io
@@ -782,7 +782,7 @@ layout: about-me
 helloMsg: ¡Gracias!
 name: Antonio Leiva
 nameTitle: Formador DevExpert
-imageSrc: ./assets/antonio-leiva.jpg
+imageSrc: /antonio-leiva.jpg
 position: left
 job: Formador DevExpert
 social1: 🐦 @devexpert_io
