@@ -346,27 +346,6 @@ tasks.shadowJar {
 
 ---
 
-# Bootstrap del servidor
-
-```kotlin{all|2,3|4,5}
-private val server = Server(
-  serverInfo = Implementation(
-    name = "play-store-mcp",
-    version = "1.0.0"
-  ),
-  options = ServerOptions(
-    capabilities = ServerCapabilities(
-      tools = ServerCapabilities.Tools(listChanged = true),
-      prompts = ServerCapabilities.Prompts(listChanged = true)
-    )
-  )
-)
-```
-
-
-
----
-
 # ServerCapabilities en acción
 
 ```kotlin
@@ -794,8 +773,6 @@ Finalmente, se ejecuta la lógica de negocio y se empaqueta la respuesta en un `
 - Repositorios de ejemplo (en desarrollo):
     - [Play Store MCP](https://github.com/devexpert-io/play-store-mcp)
     - [Listmonk MCP]()
-
-
 
 ---
 layout: about-me
