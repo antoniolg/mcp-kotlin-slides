@@ -22,7 +22,7 @@ themeConfig:
 ---
 layout: about-me
 
-helloMsg: ¡Hola Aranjuez!
+helloMsg: ¡Hola!
 name: Antonio Leiva
 nameTitle: Formador DevExpert
 imageSrc: /antonio-leiva.jpg
