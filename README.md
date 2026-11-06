@@ -1,3 +1,7 @@
+> [!WARNING]
+> **Archivado · Archived.** Este repositorio ya no se mantiene y puede no compilar con versiones actuales. This repository is no longer maintained and may not build with current versions.
+> Lo que enseño ahora · What I teach now: [devexpert.io](https://devexpert.io)
+
 # MCP Kotlin Slides
 
 Presentación sobre el SDK de Model Context Protocol (MCP) para Kotlin y casos prácticos.
